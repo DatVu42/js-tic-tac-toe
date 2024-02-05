@@ -1,5 +1,6 @@
 import { TURN } from "./constants.js";
 import { getCellElementAtIdx, getCellElementList, getCurrentTurnElement, getGameStatusElement } from "./selectors.js";
+import { checkGameStatus } from "./utils.js";
 
 /**
  * Global variables
@@ -23,6 +24,11 @@ let cellValues = new Array(9).fill("");
  * 4. On replay button click --> reset game to play again.
  *
  */
+
+console.log(checkGameStatus(['X', 'O', 'O', '', 'X', '', '', 'O', 'X']));
+console.log(checkGameStatus(['O', 'O', 'O', '', 'X', '', '', 'O', 'X']));
+console.log(checkGameStatus(['O', 'X', 'O', 'O', 'X', 'O', 'X', 'O', 'X']));
+console.log(checkGameStatus(['O', 'X', 'O', 'O', 'X', 'O', 'X', '', 'X']));
 
 function toggleTurn() {
     currentTurn = currentTurn === TURN.CROSS ? TURN.CIRCLE : TURN.CROSS;
