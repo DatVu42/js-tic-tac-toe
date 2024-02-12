@@ -10,6 +10,7 @@ export const CELL_VALUE = {
 };
 
 export const GAME_STATUS = {
+  LOADING: "LOADING",
   PLAYING: "PLAYING",
   ENDED: "END GAME",
   X_WIN: "X WIN",

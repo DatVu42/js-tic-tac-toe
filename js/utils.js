@@ -36,6 +36,7 @@
 //
 
 import { CELL_VALUE, GAME_STATUS } from "./constants.js";
+import { getCellElementAtIdx, getGameStatusElement } from "./selectors.js";
 
 // Input: an array of 9 items
 // Output: an object as mentioned above
@@ -80,4 +81,20 @@ export function checkGameStatus(cellValues) {
     status: isEndGame ? GAME_STATUS.ENDED : GAME_STATUS.PLAYING,
     winPositions: [],
   };
+}
+
+export function updateGameStatus(status) {
+  const statusElement = getGameStatusElement();
+  if (statusElement) statusElement.textContent = status;
+}
+
+export function highlightWinCells(winPositions) {
+  if (!Array.isArray(winPositions) || winPositions.length !== 3) {
+      throw new Error('Invalid win positions');
+  }
+
+  for (const cellIndex of winPositions) {
+      const winCell = getCellElementAtIdx(cellIndex);
+      winCell.classList.add('win');
+  }
 }

@@ -1,12 +1,13 @@
 import { CELL_VALUE, GAME_STATUS, TURN } from "./constants.js";
-import { getCellElementAtIdx, getCellElementList, getCurrentTurnElement, getGameStatusElement, getReplayGameButton } from "./selectors.js";
-import { checkGameStatus } from "./utils.js";
+import { getCellElementList, getCurrentTurnElement, getReplayGameButton } from "./selectors.js";
+import { checkGameStatus, highlightWinCells, updateGameStatus } from "./utils.js";
 
 /**
  * Global variables
  */
 let currentTurn = TURN.CROSS;
-let isGameEnded = false;
+let gameStatus = GAME_STATUS.LOADING;
+let isEndGame = false;
 let cellValues = new Array(9).fill("");
 
 /**
@@ -25,30 +26,18 @@ let cellValues = new Array(9).fill("");
  *
  */
 
+function resetCurrentTurn(currentTurn) {
+    const currentTurnElement = getCurrentTurnElement();
+    if (currentTurnElement) {
+        currentTurnElement.classList.remove(TURN.CROSS, TURN.CIRCLE);
+        currentTurnElement.classList.add(currentTurn);
+    }
+}
+
 function toggleTurn() {
     currentTurn = currentTurn === TURN.CROSS ? TURN.CIRCLE : TURN.CROSS;
 
-    const turnElement = getCurrentTurnElement();
-    if (turnElement) {
-        turnElement.classList.remove(TURN.CROSS, TURN.CIRCLE);
-        turnElement.classList.add(currentTurn);
-    }
-}
-
-function updateGameStatus(status) {
-    const statusElement = getGameStatusElement();
-    if (statusElement) statusElement.textContent = status;
-}
-
-function highlightWinCells(winPositions) {
-    if (!Array.isArray(winPositions) || winPositions.length !== 3) {
-        throw new Error('Invalid win positions');
-    }
-
-    for (const cellIndex of winPositions) {
-        const winCell = getCellElementAtIdx(cellIndex);
-        winCell.classList.add('win');
-    }
+    resetCurrentTurn(currentTurn);
 }
 
 function showReplayGameButton(status) {
@@ -57,11 +46,13 @@ function showReplayGameButton(status) {
 
     if (status !== GAME_STATUS.PLAYING) replayGameButton.classList.add('show');
 
-    isGameEnded = true;
+    isEndGame = true;
 }
 
 function handleCellClick(cell, index) {
-    if (cell.classList.contains(TURN.CROSS) || cell.classList.contains(TURN.CIRCLE) || isGameEnded) return;
+    const isClicked = cell.classList.contains(TURN.CROSS) || cell.classList.contains(TURN.CIRCLE);
+
+    if (isClicked || isEndGame) return;
 
     cell.classList.add(currentTurn);
 
@@ -73,7 +64,7 @@ function handleCellClick(cell, index) {
     const game = checkGameStatus(cellValues);
     switch (game.status) {
         case GAME_STATUS.X_WIN:
-        case GAME_STATUS.O_WIN:
+        case GAME_STATUS.O_WIN: {
             // update game status
             updateGameStatus(game.status);
             // highlight win cells
@@ -81,13 +72,15 @@ function handleCellClick(cell, index) {
             // show replayGame button
             showReplayGameButton(game.status);
             break;
+        }
 
-        case GAME_STATUS.ENDED:
+        case GAME_STATUS.ENDED: {
             // update game status
             updateGameStatus(game.status);
             // show replayGame button
             showReplayGameButton(game.status);
             break;
+        }
 
         default:
             // update game status
@@ -105,6 +98,39 @@ function initCellElementList() {
     })
 }
 
+function resetGame() {
+    // reset global variables
+    currentTurn = TURN.CROSS;
+    isEndGame = false;
+    cellValues = cellValues.map(() => '');
+    gameStatus = GAME_STATUS.LOADING;
+
+    // reset gameStatus
+    updateGameStatus(gameStatus);
+
+    // reset currentTurn
+    resetCurrentTurn(currentTurn);
+
+    // reset board game
+    const cellELementList = getCellElementList();
+    for (const cell of cellELementList) {
+        cell.className = '';
+    }
+
+    // hide replayGame button
+    const replayButton = getReplayGameButton();
+    if (replayButton) replayButton.classList.remove('show');
+}
+
+function initReplayButton() {
+    const replayGameButton = getReplayGameButton();
+    if (!replayGameButton) return;
+
+    replayGameButton.addEventListener('click', resetGame)
+}
+
+
 (() => {
     initCellElementList();
-})()
+    initReplayButton();
+})();
