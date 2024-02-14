@@ -90,11 +90,13 @@ function handleCellClick(cell, index) {
 
 function initCellElementList() {
     const liElementList = getCellElementList();
+    if (!liElementList) return;
     liElementList.forEach((cell, index) => {
         cell.dataset.idx = index;
     })
 
     const ulElement = getULElement();
+    if (!ulElement) return;
     ulElement.addEventListener('click', (event) => {
         if (event.target.tagName !== 'LI') return;
 
